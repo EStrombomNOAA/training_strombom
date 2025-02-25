@@ -1,0 +1,128 @@
+---
+title: "Introduction to Quarto"
+format: html
+editor: visual
+bibliography: references.bib
+---
+
+## Quarto
+
+-list -things
+
+**Quarto** enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+Use ctrl + alt + i to quickly add code chunk
+
+Use alt + enter to run the line you are currently on
+
+```{r}
+x <- 4 + 8
+
+height_ft <- c(5.2, 6.0, 5.7)
+
+coef <- 3.14
+
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+# Things better to do in Visual tab vs Source tab
+
+Insert -\> Citation
+
+[@oke2020]
+
+Table -\> Insert Table
+
+| Col1 | Col2 |
+|------|------|
+|      |      |
+|      |      |
+
+# Exercise
+
+# Introduction
+
+## About the data
+
+-   Water sample data from Arctic Ocean
+-   Data downloaded from the Arctic Data Center: [Tweedie ADC dataset](https://arcticdata.io/catalog/view/doi:10.18739/A25T3FZ8X)
+
+## Setup
+
+See Section 2.3 of textbook for more messages
+
+```{r}
+#| message: false
+
+library(readr)
+library(here)
+
+# install.packages()
+```
+
+## Read in data
+
+```{r}
+
+#| message: false
+
+bg_chem <- read_csv(here::here("data/BGchem2008data.csv"))
+```
+
+# Analysis
+
+## Calculate summary statistics
+
+```{r}
+colnames(bg_chem)
+
+str(bg_chem)
+
+head(bg_chem)
+
+summary(bg_chem)
+
+unique(bg_chem$Date)
+
+# discussed view()
+```
+
+## Calculate mean Redfield ratio
+
+```{r}
+# calculated some means
+
+nitrate <- mean(bg_chem$NO3)
+nitrite <- mean(bg_chem$NO2)
+amm <- mean(bg_chem$NH4)
+phos <- mean(bg_chem$P)
+
+# chalculate the ratio
+ratio <- (nitrate + nitrite + amm ) / phos
+```
+
+Here is the ratio we calculated: `r round(ratio)`
+
+## Plot Redfield ratio
+
+```{r}
+plot(bg_chem$P, bg_chem$NO3 + bg_chem$NO2 + bg_chem$NH4)
+```
+
+# Conclusion
