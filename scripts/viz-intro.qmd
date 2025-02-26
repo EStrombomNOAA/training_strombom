@@ -1,0 +1,83 @@
+---
+title: "Visualization intro"
+format: html
+editor: visual
+---
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(janitor)
+library(scales)
+```
+```{r}
+escape_raw <- read_csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3Af119a05b-bbe7-4aea-93c6-85434dcb1c5e")
+```
+
+```{r}
+escape <- escape_raw %>% janitor::clean_names()
+```
+
+```{r}
+annual_esc <- escape %>%
+  filter(species %in% c("Chinook", "Sockeye", "Chum", "Coho", "Pink")) %>%
+  mutate(year = lubridate::year(sample_date)) %>%
+  group_by(species, sasap_region, year) %>%
+  summarize(escapement = sum(daily_count))
+
+```
+
+## Vizualization
+
+```{r}
+ggplot(data = annual_esc, aes(x = species, y = escapement)) +
+  geom_col()
+```
+
+```{r}
+
+annual_esc %>%
+  filter(species == "Sockeye",
+         sasap_region == "Bristol Bay") %>%
+  ggplot(aes(x = year, y = escapement)) +
+  geom_line() +
+  geom_point()
+```
+```{r}
+annual_esc %>%
+  filter(year == 1974,
+         species %in% c("Chum", "Pink")) %>%
+  ggplot(aes(x = species, y = escapement)) +
+  geom_boxplot()
+```
+
+```{r}
+
+ggplot(annual_esc, aes(x = species, y = escapement, fill = sasap_region)) +
+  geom_col()
+```
+
+```{r}
+annual_esc_2000s <- annual_esc %>%
+  filter(year %in% 2000:2016)
+```
+
+
+```{r}
+my_theme <- theme(legend.position = "bottom",
+        legend.title = element_blank())
+```
+
+```{r}
+ggplot(annual_esc_2000s, aes(x = year, y = escapement, color = species)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous("Escapement", label = comma) +
+  facet_wrap( ~ sasap_region, scales = "free_y") +
+  labs(title = "Annual escapement by region", x = "Year") +
+  my_theme
+  
+```
+
