@@ -81,3 +81,66 @@ ggplot(annual_esc_2000s, aes(x = year, y = escapement, color = species)) +
   
 ```
 
+## Interactive visualization
+
+## DT
+```{r}
+library(DT)
+```
+```{r}
+locations <- escape %>%
+  distinct(location, latitude, longitude) %>%
+  drop_na()
+locations
+```
+```{r}
+datatable(locations)
+```
+
+## leaflet
+
+```{r}
+library(leaflet)
+
+```
+
+```{r}
+leaflet(locations) %>%
+  addTiles() %>%
+  addMarkers(
+    lng = ~ longitude,
+    lat = ~ latitude,
+    popup = ~ location
+  )
+```
+
+```{r}
+leaflet(locations) %>%
+    addWMSTiles(
+        "https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv?request=getmap&service=wms&BBOX=-90,-180,90,360&crs=EPSG:4326&format=image/jpeg&layers=gebco_latest&width=1200&height=600&version=1.3.0",
+        layers = 'GEBCO_LATEST',
+        attribution = "Imagery reproduced from the GEBCO_2022 Grid, WMS 1.3.0 GetMap, www.gebco.net"
+    ) %>%
+    addCircleMarkers(
+        lng = ~ longitude,
+        lat = ~ latitude,
+        popup = ~ location,
+        radius = 5,
+        # set fill properties
+        fillColor = "salmon",
+        fillOpacity = 1,
+        # set stroke properties
+        stroke = TRUE,
+        weight = 0.5,
+        color = "white",
+        opacity = 1
+    )
+```
+
+
+
+
+
+
+
+
