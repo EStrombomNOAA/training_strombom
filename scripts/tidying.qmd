@@ -1,0 +1,109 @@
+---
+title: "datacleanup"
+format: html
+editor: visual
+---
+```{r}
+
+#| message = false
+
+
+library(dplyr)
+library(tidyr)
+library(readr)
+```
+
+
+
+## Data Sources
+
+### Read in the data
+
+```{r}
+catch_original <- read_csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1")
+
+
+```
+
+### Explore data
+```{r}
+## Prints the column names of my data frame
+colnames(catch_original)
+
+## First 6 lines of the data frame
+head(catch_original)
+
+## Summary of each column of data
+summary(catch_original)
+
+## Prints unique values in a column (in this case, the region)
+unique(catch_original$Region)
+
+## Opens data frame in its own tab to see each row and column of the data (do in console)
+View(catch_original)
+```
+
+
+## Clean & Reshape data
+#### Using the select() function
+
+```{r}
+catch_data <- catch_original %>%
+    select(Region, Year, Chinook, Sockeye, Coho, Pink, Chum)
+
+head(catch_data)
+
+catch_data <- catch_original %>%
+    select(-All,-notesRegCode)
+```
+
+#### Check column types
+
+```{r}
+dplyr::glimpse(catch_data)
+```
+
+#### Replace values in a column with mutate()
+
+```{r}
+catch_clean <- catch_data %>%
+    mutate(Chinook = as.numeric(Chinook))
+
+head(catch_clean)
+
+i <- which(is.na(catch_clean$Chinook))
+i
+
+catch_data[i,]
+
+catch_clean <- catch_data %>%
+    mutate(Chinook = if_else(condition = Chinook == "I", 
+                             true = "1", 
+                             false = Chinook),
+           Chinook = as.numeric(Chinook))
+
+##check
+catch_clean[i, ]
+
+```
+
+#### Reshape data with pivot_longer() and pivot_wider()
+
+```{r}
+catch_long <- catch_clean %>% 
+    #pivot longer all columns except Region and Year
+    pivot_longer(
+        cols = -c(Region, Year),
+        names_to = "species",
+        values_to = "catch"
+    )
+
+head(catch_long)
+```
+
+#### Rename columns with rename()
+### Add columns with mutate()
+#### Summary statistics using group_by() and summarize()
+#### Filtering rows using filter()
+#### Sort data with arrange()
+#### Split and combine values in columns with separate() and unite()
