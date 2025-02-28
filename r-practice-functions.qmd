@@ -1,0 +1,53 @@
+---
+title: "R Practice: Functions"
+format: html
+editor: visual
+---
+
+## 
+
+```{r}
+library(rvest)
+library(readr)
+library(dplyr)
+library(janitor)
+```
+
+```{r}
+webpage <- rvest::read_html("https://www.pwrc.usgs.gov/BBL/Bander_Portal/login/speclist.php")
+
+tbls <- rvest::html_nodes(webpage, "table") %>% 
+    rvest::html_table(fill = TRUE)
+
+species <- tbls[[1]] %>% 
+    janitor::clean_names() %>% 
+    select(alpha_code, common_name) %>% 
+    mutate(alpha_code = tolower(alpha_code))
+
+head(species, 3)
+```
+
+```{r}
+
+nest_data <- read_csv("https://arcticdata.io/metacat/d1/mn/v2/object/urn%3Auuid%3A982bd2fc-4edf-4da7-96ef-0d11b853102d")
+predator_survey <- read_csv("https://arcticdata.io/metacat/d1/mn/v2/object/urn%3Auuid%3A9ffec04c-7e2d-41dd-9e88-b6c2e8c4375e")
+egg_measures <- read_csv("https://arcticdata.io/metacat/d1/mn/v2/object/urn%3Auuid%3A4b219711-2282-420a-b1d6-1893fe4a74a6")
+```
+
+```{r}
+glimpse(predator_survey)
+glimpse(egg_measures)
+glimpse(nest_data)
+```
+
+```{r}
+pred_clean <- left_join(predator_survey, species, by= c("species" = "alpha_code"))
+```
+
+```{r}
+assign_species_name <- function(df, species){
+    return_df <- left_join(df, species, by = c("species" = "alpha_code"))
+    return(return_df)
+}
+```
+
